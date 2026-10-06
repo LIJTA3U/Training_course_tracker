@@ -1,4 +1,4 @@
-Training Course Tracker
+## Training Course Tracker
 
 REST API для учебного проекта Training Course Tracker.
 
@@ -6,7 +6,7 @@ REST API для учебного проекта Training Course Tracker.
 
 API реализовано на C# с использованием ASP.NET Core Minimal API и запускается как локальное приложение или Docker-контейнер.
 
-Технологии
+## Технологии
 
 C#
 
@@ -21,7 +21,7 @@ Ubuntu Linux
 API
 GET /
 
-Проверка, что API запущено.
+## Проверка, что API запущено.
 
 curl http://localhost:8080/
 
@@ -232,7 +232,7 @@ curl http://localhost:8080/api/courses
 6. Проверка логов
 docker logs course-tracker
 
-Соответствие этапам задания
+№№ Соответствие этапам задания
 Этап	Выполнение
 1. Продолжить проектную тему	Training Course Tracker
 2. Создать API-приложение	C# / ASP.NET Core Minimal API
