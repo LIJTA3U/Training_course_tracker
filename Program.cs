@@ -8,10 +8,8 @@ var courses = new List<Course>
     new(3, "Docker", 24, 24, true)
 };
 
-// Получить список учебных курсов.
 app.MapGet("/api/courses", () => Results.Ok(courses));
 
-// Получить курс по идентификатору.
 app.MapGet("/api/courses/{id:int}", (int id) =>
 {
     var course = courses.FirstOrDefault(c => c.Id == id);
