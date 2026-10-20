@@ -1,0 +1,65 @@
+name: training-course-tracker
+
+services:
+  # ==================== БД PostgreSQL ====================
+  db:
+    image: postgres:16
+    container_name: training-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-training_courses}
+      POSTGRES_USER: ${POSTGRES_USER:-training_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-training_password}
+      # Ускоряет инициализацию кластера при первом запуске.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    volumes:
+      # Именованный volume: данные переживают пересоздание контейнера.
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - training_net
+    # Внутри compose-сети БД всегда доступна как db:5432.
+    # На хост пробрасывается POSTGRES_HOST_PORT, чтобы не конфликтовать
+    # с локальным PostgreSQL, который обычно занимает 5432.
+    ports:
+      - "${POSTGRES_HOST_PORT:-55432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-training_user} -d ${POSTGRES_DB:-training_courses}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ==================== API приложение ====================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: training-course-api:latest
+    container_name: training-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: "8080"
+      # Настройки подключения передаются в приложение через environment.
+      # Двойное подчёркивание "__" — разделитель уровней конфигурации .NET,
+      # поэтому ConnectionStrings__TrainingDb читается как ConnectionStrings:TrainingDb.
+      ConnectionStrings__TrainingDb: >-
+        Host=db;Port=5432;Database=${POSTGRES_DB:-training_courses};Username=${POSTGRES_USER:-training_user};Password=${POSTGRES_PASSWORD:-training_password};Include Error Detail=true
+      # Демонстрационные данные при первом запуске (по желанию).
+      Database__SeedOnStartup: "${SEED_ON_STARTUP:-false}"
+    ports:
+      - "${API_HOST_PORT:-8080}:8080"
+    networks:
+      - training_net
+    depends_on:
+      db:
+        # Запускаем API только после того, как PostgreSQL реально готов принимать запросы.
+        condition: service_healthy
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  training_net:
+    driver: bridge
