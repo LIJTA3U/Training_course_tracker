@@ -8,8 +8,7 @@ RUN dotnet restore src/TrainingCourseApi/TrainingCourseApi.csproj
 COPY src/ src/
 RUN dotnet publish src/TrainingCourseApi/TrainingCourseApi.csproj \
     --configuration $BUILD_CONFIGURATION \
-    --output /app/publish \
-    --no-restore
+    --output /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
