@@ -1,8 +1,5 @@
 namespace TrainingCourseApi.Models;
 
-/// <summary>
-/// Урок (модуль) курса.
-/// </summary>
 public class Lesson
 {
     public int Id { get; set; }

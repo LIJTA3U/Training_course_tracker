@@ -8,9 +8,6 @@ using TrainingCourseApi.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------- Конфигурация подключения к PostgreSQL ----------
-// Строка подключения берётся из ConnectionStrings:TrainingDb.
-// В Docker она передаётся через переменную окружения ConnectionStrings__TrainingDb.
 var connectionString = builder.Configuration.GetConnectionString("TrainingDb");
 
 if (string.IsNullOrWhiteSpace(connectionString))
@@ -22,7 +19,6 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    // Имена таблиц, колонок, индексов и внешних ключей в стиле snake_case (конвенция PostgreSQL).
     options.UseSnakeCaseNamingConvention();
     options.UseNpgsql(connectionString, npgsql => npgsql.EnableRetryOnFailure(5));
 });
@@ -44,7 +40,6 @@ builder.Services.AddSwaggerGen(options =>
     }
 });
 
-// Перечисления (CourseCategory, EnrollmentStatus) принимаются и возвращаются строками.
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -53,7 +48,6 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 var app = builder.Build();
 
-// ---------- Swagger UI ----------
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
@@ -61,7 +55,6 @@ app.UseSwaggerUI(options =>
     options.DocumentTitle = "Трекер учебных курсов — API";
 });
 
-// ---------- Корневой эндпоинт (сохранён с начальной версии проекта) ----------
 app.MapGet("/", () => Results.Ok(new
 {
     message = "Course Tracker API is running",
@@ -95,7 +88,6 @@ app.MapGet("/", () => Results.Ok(new
 .WithSummary("Информация об API и список маршрутов")
 .Produces(StatusCodes.Status200OK);
 
-// ---------- Health-check: приложение + БД ----------
 app.MapGet("/health", async (AppDbContext db, CancellationToken ct) =>
 {
     var canConnect = await db.Database.CanConnectAsync(ct);
@@ -112,7 +104,6 @@ app.MapGet("/health", async (AppDbContext db, CancellationToken ct) =>
 .Produces(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status503ServiceUnavailable);
 
-// ---------- Применение миграций и опциональный сид ----------
 await InitializeDatabaseAsync(app);
 
 app.MapCourseEndpoints();
