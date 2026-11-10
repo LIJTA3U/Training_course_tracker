@@ -1,3 +1,6 @@
+Проблема в тегах `<br>` — GitHub не поддерживает их внутри узлов Mermaid, из-за чего парсер ломается. Ниже — исправленный `architecture.md`, где все диаграммы полностью переwritten на обычный текст без `<br>`. Уровни не смешаны, все подписи простые, стрелки показывают направления.
+
+```markdown
 # Трекер учебных курсов — архитектурная документация (C4, Mermaid)
 
 ## 1. Описание системы
@@ -25,19 +28,19 @@
 ```mermaid
 graph TD
     subgraph External["Внешние системы"]
-        Swagger["Swagger UI / OpenAPI<br/>Документация и тестирование API"]
-        Scripts["Скрипты проверки<br/>(verify-crud, verify-persistence)"]
-        DBAdmin["psql / pgAdmin<br/>Администрирование БД"]
+        Swagger["Swagger UI / OpenAPI"]
+        Scripts["Скрипты проверки"]
+        DBAdmin["psql / pgAdmin"]
     end
 
-    Student["Студент / слушатель<br/>Просматривает курсы, записывается, отслеживает прогресс"]
-    Tutor["Преподаватель / куратор<br/>Создаёт и редактирует курсы и уроки"]
-    Tracker["Трекер учебных курсов (REST API)<br/>CRUD для курсов, уроков, записей<br/>Хранилище: PostgreSQL 16"]
+    Student["Студент / слушатель"]
+    Tutor["Преподаватель / куратор"]
+    Tracker["Трекер учебных курсов (REST API)"]
 
-    Student -->|REST API (JSON)<br/>HTTPS| Tracker
-    Tutor -->|REST API (JSON)<br/>HTTPS| Tracker
-    Tracker -->|OpenAPI<br/>HTTP| Swagger
-    Scripts -->|Проверочные запросы<br/>HTTPS| Tracker
+    Student -->|REST API JSON HTTPS| Tracker
+    Tutor -->|REST API JSON HTTPS| Tracker
+    Tracker -->|OpenAPI HTTP| Swagger
+    Scripts -->|Проверочные запросы HTTPS| Tracker
     DBAdmin <-->|TCP/5432| Tracker
 ```
 
@@ -52,29 +55,29 @@ graph TD
 ```mermaid
 graph TD
     subgraph GW["API Gateway / Load Balancer"]
-        Gateway["Шлюз / балансировщик<br/>(Nginx или Traefik)<br/>Точка входа: TLS, роутинг, rate limiting"]
+        Gateway["Шлюз / балансировщик Nginx Traefik"]
     end
 
     subgraph API["Training Course API"]
-        APIApp["Training Course API<br/>(ASP.NET Core Minimal API)<br/>REST API, валидация, EF Core, Swagger"]
+        APIApp["Training Course API ASP.NET Core Minimal API"]
     end
 
     subgraph DB["PostgreSQL 16"]
-        DBNode["PostgreSQL 16<br/>Реляционное хранилище<br/>том db_data для сохранности данных"]
+        DBNode["PostgreSQL 16 реляционное хранилище"]
     end
 
     subgraph Cache["Дополнительный компонент"]
-        Redis["Redis<br/>Кэш списков курсов и агрегатов<br/>(lessonCount, averageProgress)"]
+        Redis["Redis кэш списков и агрегатов"]
     end
 
     Student["Студент / слушатель"]
     Tutor["Преподаватель / куратор"]
 
-    Student -->|REST API (JSON)<br/>HTTPS| Gateway
-    Tutor -->|REST API (JSON)<br/>HTTPS| Gateway
-    Gateway -->|Пересылает запросы<br/>HTTP| APIApp
-    APIApp -->|EF Core / Npgsql<br/>TCP/5432| DBNode
-    APIApp -->|Кэш списков и агрегатов<br/>TCP/6379| Redis
+    Student -->|REST API JSON HTTPS| Gateway
+    Tutor -->|REST API JSON HTTPS| Gateway
+    Gateway -->|Пересылает запросы HTTP| APIApp
+    APIApp -->|EF Core Npgsql TCP/5432| DBNode
+    APIApp -->|Кэш списков и агрегатов TCP/6379| Redis
 ```
 
 **Роли компонентов:**
@@ -99,49 +102,49 @@ graph TD
 
 ```mermaid
 graph TD
-    subgraph API["Training Course API (ASP.NET Core)"]
-        subgraph Endpoints["Контроллеры (Minimal API endpoints)"]
-            Courses["CourseEndpoints<br/>Курсы: GET/POST/PUT/PATCH/DELETE<br/>/api/courses"]
-            Lessons["LessonEndpoints<br/>Уроки: CRUD внутри курса"]
-            Enrollments["EnrollmentEndpoints<br/>Записи студентов: запись, чтение, прогресс, удаление"]
+    subgraph API["Training Course API ASP.NET Core"]
+        subgraph Endpoints["Контроллеры Minimal API endpoints"]
+            Courses["CourseEndpoints курсы"]
+            Lessons["LessonEndpoints уроки"]
+            Enrollments["EnrollmentEndpoints записи"]
         end
 
         subgraph Internal["Внутренние компоненты API"]
-            Validation["ValidationHelper<br/>Валидатор DTO<br/>ответ 400 со списком ошибок"]
-            Mapping["MappingExtensions<br/>Маппер: сущность EF Core ↔ DTO"]
-            DbCtx["AppDbContext<br/>Репозиторий данных (EF Core DbContext)<br/>миграции при старте"]
-            Models["Модели<br/>(Course, Lesson, Enrollment,<br/>CourseCategory)<br/>таблицы БД snake_case"]
-            Contracts["Контракты (Contracts.cs, DTO)<br/>схемы входных и выходных данных"]
+            Validation["ValidationHelper валидатор DTO"]
+            Mapping["MappingExtensions маппер сущность DTO"]
+            DbCtx["AppDbContext репозиторий данных EF Core"]
+            Models["Модели Course Lesson Enrollment CourseCategory"]
+            Contracts["Контракты Contracts.cs DTO"]
         end
     end
 
-    DB["PostgreSQL 16<br/>База данных системы"]
-    Client["Клиент API<br/>(студент, куратор или шлюз)"]
+    DB["PostgreSQL 16 база данных системы"]
+    Client["Клиент API студент куратор шлюз"]
 
-    Client -->|Маршруты курсов<br/>HTTP/JSON| Courses
-    Client -->|Маршруты уроков<br/>HTTP/JSON| Lessons
-    Client -->|Маршруты записей<br/>HTTP/JSON| Enrollments
+    Client -->|Маршруты курсов HTTP JSON| Courses
+    Client -->|Маршруты уроков HTTP JSON| Lessons
+    Client -->|Маршруты записей HTTP JSON| Enrollments
 
-    Courses -->|Валидация DTO<br/>in-process| Validation
-    Lessons -->|Валидация DTO<br/>in-process| Validation
-    Enrollments -->|Валидация DTO<br/>in-process| Validation
+    Courses -->|Валидация DTO in-process| Validation
+    Lessons -->|Валидация DTO in-process| Validation
+    Enrollments -->|Валидация DTO in-process| Validation
 
-    Courses -->|Маппинг сущность ↔ DTO<br/>in-process| Mapping
-    Lessons -->|Маппинг сущность ↔ DTO<br/>in-process| Mapping
-    Enrollments -->|Маппинг сущность ↔ DTO<br/>in-process| Mapping
+    Courses -->|Маппинг сущность DTO in-process| Mapping
+    Lessons -->|Маппинг сущность DTO in-process| Mapping
+    Enrollments -->|Маппинг сущность DTO in-process| Mapping
 
-    Courses -->|Входной/выходной контракт<br/>in-process| Contracts
-    Lessons -->|Входной/выходной контракт<br/>in-process| Contracts
-    Enrollments -->|Входной/выходной контракт<br/>in-process| Contracts
+    Courses -->|Входной выходной контракт in-process| Contracts
+    Lessons -->|Входной выходной контракт in-process| Contracts
+    Enrollments -->|Входной выходной контракт in-process| Contracts
 
-    Courses -->|Сохранение и загрузка курсов<br/>EF Core / Npgsql| DbCtx
-    Lessons -->|Сохранение и загрузка уроков<br/>EF Core / Npgsql| DbCtx
-    Enrollments -->|Сохранение и загрузка записей<br/>EF Core / Npgsql| DbCtx
+    Courses -->|Сохранение загрузка курсов EF Core Npgsql| DbCtx
+    Lessons -->|Сохранение загрузка уроков EF Core Npgsql| DbCtx
+    Enrollments -->|Сохранение загрузка записей EF Core Npgsql| DbCtx
 
-    DbCtx -->|Работа с доменными сущностями<br/>in-process| Models
-    DbCtx -->|SQL и применение миграций<br/>TCP/5432| DB
+    DbCtx -->|Работа с доменными сущностями in-process| Models
+    DbCtx -->|SQL и применение миграций TCP/5432| DB
 
-    Mapping -->|Преобразование моделей<br/>in-process| Models
+    Mapping -->|Преобразование моделей in-process| Models
 ```
 
 **Роли компонентов (уровень 3):**
@@ -183,3 +186,4 @@ npx @mermaid-js/mmdc -i c4-context.mmd -o c4-context.pdf
 ```
 
 Альтернатива без установки: скопировать код любого блока выше в [mermaid.live](https://mermaid.live) → кнопка «Download PNG/PDF». Также любую IDE с плагином Mermaid (VS Code, IntelliJ и др.) можно использовать для просмотра и экспорта.
+```
