@@ -26,6 +26,7 @@
 16. [Структура проекта](#структура-проекта)
 17. [Решение проблем](#решение-проблем)
 18. [Статус](#статус)
+19. [Архитектурная документация](#архитектурная-документация)
 
 ---
 
@@ -388,6 +389,7 @@ training-course-api/
 ├── .dockerignore / .gitignore
 ├── dotnet-tools.json               # локальный инструмент dotnet-ef
 ├── TrainingCourseApi.slnx          # файл решения
+├── architecture.md                 # C4-диаграммы архитектуры (Context, Container, Component)
 ├── scripts/
 │   ├── verify-crud.sh              # автопроверка CRUD-операций
 │   └── verify-persistence.sh       # проверка сохранности данных
@@ -445,3 +447,13 @@ rm -rf 'src/TrainingCourseApi/bin\Debug'
 
 - **Версия 1.0** — начальная реализация, данные в памяти, только чтение.
 - **Версия 2.0** — текущая: PostgreSQL, полный CRUD, Docker Compose, Swagger, автоматические миграции, каскадное удаление.
+
+  ---
+
+## 19. Архитектурная документация
+
+Подробные C4-диаграммы системы (уровни Context, Container, Component) см. в файле [`architecture.md`](architecture.md).
+
+- [C4 Level 1 — Context](architecture.md#c4-level-1-—-context) — пользователи, система и внешние системы
+- [C4 Level 2 — Container](architecture.md#c4-level-2-—-container) — шлюз, API, PostgreSQL, Redis
+- [C4 Level 3 — Component](architecture.md#c4-level-3-—-component) — внутренняя структура Training Course API
