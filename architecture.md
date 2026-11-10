@@ -23,26 +23,22 @@
 Система, пользователи и внешние системы. Уровень не смешивается с контейнерами и компонентами.
 
 ```mermaid
-%%{init: {'theme': 'base'}}%%
-C4Context
-    title C4 Level 1 — Context: Трекер учебных курсов
+graph TD
+    subgraph External["Внешние системы"]
+        Swagger["Swagger UI / OpenAPI<br/>Документация и тестирование API"]
+        Scripts["Скрипты проверки<br/>(verify-crud, verify-persistence)"]
+        DBAdmin["psql / pgAdmin<br/>Администрирование БД"]
+    end
 
-    Person(student, "Студент / слушатель", "Просматривает каталог курсов, записывается на курс, отслеживает прогресс и учебные часы")
-    Person(tutor, "Преподаватель / куратор", "Создаёт и редактирует курсы и уроки, управляет записями студентов")
+    Student["Студент / слушатель<br/>Просматривает курсы, записывается, отслеживает прогресс"]
+    Tutor["Преподаватель / куратор<br/>Создаёт и редактирует курсы и уроки"]
+    Tracker["Трекер учебных курсов (REST API)<br/>CRUD для курсов, уроков, записей<br/>Хранилище: PostgreSQL 16"]
 
-    System(tracker, "Трекер учебных курсов (REST API)", "CRUD-веб-сервис для учёта курсов, уроков и прогресса обучения; хранилище — PostgreSQL 16")
-
-    System_Ext(swagger, "Swagger UI / OpenAPI", "Документация и ручное тестирование эндпоинтов API", "External")
-    System_Ext(scripts, "Скрипты проверки (verify-crud, verify-persistence)", "Внешние клиенты, прогоняющие сценарии CRUD и сохранности данных по HTTP", "External")
-    System_Ext(dbAdmin, "psql / pgAdmin", "Прямое администрирование и отладка базы системы", "External")
-
-    Rel(student, tracker, "Вызывает REST API (JSON)", "HTTPS")
-    Rel(tutor, tracker, "Вызывает REST API (JSON)", "HTTPS")
-    Rel(tracker, swagger, "Предоставляет спецификацию OpenAPI и Swagger UI", "HTTP")
-    Rel(scripts, tracker, "Выполняет проверочные запросы к API", "HTTPS")
-    Rel(dbAdmin, tracker, "Читает/пишет данные базы напрямую для отладки", "TCP/5432")
-
-    UpdateLayoutParams($c4ShapeInRow="4")
+    Student -->|REST API (JSON)<br/>HTTPS| Tracker
+    Tutor -->|REST API (JSON)<br/>HTTPS| Tracker
+    Tracker -->|OpenAPI<br/>HTTP| Swagger
+    Scripts -->|Проверочные запросы<br/>HTTPS| Tracker
+    DBAdmin <-->|TCP/5432| Tracker
 ```
 
 **Направления взаимодействия:** Студент и Преподаватель → система (REST API, HTTPS); система → Swagger UI (отдаёт спецификацию); Внешние скрипты → система (проверочные HTTP-запросы); Инструмент администрирования БД ↔ данные системы (TCP/5432).
@@ -54,32 +50,31 @@ C4Context
 Контейнеры: шлюз/балансировщик, API-сервис, PostgreSQL и дополнительный компонент. Уровень не смешивается с контекстом и компонентами.
 
 ```mermaid
-%%{init: {'theme': 'base'}}%%
-C4Container
-    title C4 Level 2 — Container: Трекер учебных курсов
+graph TD
+    subgraph GW["API Gateway / Load Balancer"]
+        Gateway["Шлюз / балансировщик<br/>(Nginx или Traefik)<br/>Точка входа: TLS, роутинг, rate limiting"]
+    end
 
-    Person(student, "Студент / слушатель", "Просматривает курсы, записывается, отслеживает прогресс")
-    Person(tutor, "Преподаватель / куратор", "Создаёт и редактирует курсы и уроки")
+    subgraph API["Training Course API"]
+        APIApp["Training Course API<br/>(ASP.NET Core Minimal API)<br/>REST API, валидация, EF Core, Swagger"]
+    end
 
-    Container_Boundary(gw, "API Gateway / Load Balancer") {
-        Container(gateway, "Шлюз / балансировщик (Nginx или Traefik)", "Точка входа: терминация TLS, роутинг запросов на API, ограничение частоты (rate limiting)", "Nginx / Traefik")
-    }
+    subgraph DB["PostgreSQL 16"]
+        DBNode["PostgreSQL 16<br/>Реляционное хранилище<br/>том db_data для сохранности данных"]
+    end
 
-    Container_Boundary(api, "Training Course API") {
-        Container(apiApp, "Training Course API (ASP.NET Core Minimal API)", "REST API: курсы, уроки, записи; валидация, маппинг, EF Core, миграции, Swagger UI, health-check", "C# / .NET 10")
-    }
+    subgraph Cache["Дополнительный компонент"]
+        Redis["Redis<br/>Кэш списков курсов и агрегатов<br/>(lessonCount, averageProgress)"]
+    end
 
-    Container(db, "PostgreSQL 16", "Реляционное хранилище: курсы, уроки, записи со связями (ON DELETE CASCADE); том db_data сохраняет данные между перезапусками", "PostgreSQL 16")
+    Student["Студент / слушатель"]
+    Tutor["Преподаватель / куратор"]
 
-    Container(cache, "Redis", "Дополнительный компонент — распределённый кэш горячих списков курсов и агрегированных показателей (lessonCount, averageProgress)", "Redis")
-
-    Rel(student, gateway, "REST API (JSON)", "HTTPS")
-    Rel(tutor, gateway, "REST API (JSON)", "HTTPS")
-    Rel(gateway, apiApp, "Пересылает запросы внутреннему API", "HTTP")
-    Rel(apiApp, db, "Чтение/запись данных через EF Core (Npgsql); миграции применяются при старте", "TCP/5432")
-    Rel(apiApp, cache, "Чтение и обновление кэша списков и агрегатов", "TCP/6379")
-
-    UpdateLayoutParams($c4ShapeInRow="4")
+    Student -->|REST API (JSON)<br/>HTTPS| Gateway
+    Tutor -->|REST API (JSON)<br/>HTTPS| Gateway
+    Gateway -->|Пересылает запросы<br/>HTTP| APIApp
+    APIApp -->|EF Core / Npgsql<br/>TCP/5432| DBNode
+    APIApp -->|Кэш списков и агрегатов<br/>TCP/6379| Redis
 ```
 
 **Роли компонентов:**
@@ -103,45 +98,50 @@ C4Container
 Внутренние части одного сервиса: контроллеры (Endpoints), валидатор, маппер, репозиторий/контекст данных, модели, контракты. Уровень не смешивается с контекстом и контейнерами.
 
 ```mermaid
-%%{init: {'theme': 'base'}}%%
-C4Component
-    title C4 Level 3 — Component: контейнер «Training Course API»
+graph TD
+    subgraph API["Training Course API (ASP.NET Core)"]
+        subgraph Endpoints["Контроллеры (Minimal API endpoints)"]
+            Courses["CourseEndpoints<br/>Курсы: GET/POST/PUT/PATCH/DELETE<br/>/api/courses"]
+            Lessons["LessonEndpoints<br/>Уроки: CRUD внутри курса"]
+            Enrollments["EnrollmentEndpoints<br/>Записи студентов: запись, чтение, прогресс, удаление"]
+        end
 
-    Person(client, "Клиент API (студент, куратор или шлюз)", "Вызывает эндпоинты REST API")
+        subgraph Internal["Внутренние компоненты API"]
+            Validation["ValidationHelper<br/>Валидатор DTO<br/>ответ 400 со списком ошибок"]
+            Mapping["MappingExtensions<br/>Маппер: сущность EF Core ↔ DTO"]
+            DbCtx["AppDbContext<br/>Репозиторий данных (EF Core DbContext)<br/>миграции при старте"]
+            Models["Модели<br/>(Course, Lesson, Enrollment,<br/>CourseCategory)<br/>таблицы БД snake_case"]
+            Contracts["Контракты (Contracts.cs, DTO)<br/>схемы входных и выходных данных"]
+        end
+    end
 
-    Container_Boundary(api, "Training Course API (ASP.NET Core)") {
-        Component(epCourses, "CourseEndpoints", "Контроллер курсов (Minimal API endpoints)", "GET/POST/PUT/PATCH/DELETE /api/courses — пагинация, фильтры, каскадное удаление")
-        Component(epLessons, "LessonEndpoints", "Контроллер уроков (Minimal API endpoints)", "CRUD уроков внутри курса")
-        Component(epEnrollments, "EnrollmentEndpoints", "Контроллер записей студентов (Minimal API endpoints)", "Запись на курс, чтение, обновление прогресса, удаление")
-        Component(validation, "ValidationHelper", "Валидатор", "Проверка входящих DTO; ответ 400 со списком ошибок по полям")
-        Component(mapping, "MappingExtensions", "Маппер", "Преобразование доменных сущностей ↔ DTO контрактов ответов")
-        Component(dbCtx, "AppDbContext", "Репозиторий доступа к данным (EF Core DbContext)", "Загрузка и сохранение сущностей Course, Lesson, Enrollment; запуск миграций при старте")
-        Component(models, "Модели (Course, Lesson, Enrollment, CourseCategory)", "Доменные модели", "Сущности и перечисления, отображённые в таблицах БД")
-        Component(contracts, "Контракты (Contracts.cs, DTO)", "Контракты API", "Схемы входных и выходных данных (CourseCreateRequest, PagedResponse и т.д.)")
-    }
+    DB["PostgreSQL 16<br/>База данных системы"]
+    Client["Клиент API<br/>(студент, куратор или шлюз)"]
 
-    Container(db, "PostgreSQL 16", "База данных системы", "PostgreSQL 16")
+    Client -->|Маршруты курсов<br/>HTTP/JSON| Courses
+    Client -->|Маршруты уроков<br/>HTTP/JSON| Lessons
+    Client -->|Маршруты записей<br/>HTTP/JSON| Enrollments
 
-    Rel(client, epCourses, "Маршруты курсов", "HTTP/JSON")
-    Rel(client, epLessons, "Маршруты уроков", "HTTP/JSON")
-    Rel(client, epEnrollments, "Маршруты записей", "HTTP/JSON")
-    Rel(epCourses, validation, "Валидация DTO", "in-process")
-    Rel(epLessons, validation, "Валидация DTO", "in-process")
-    Rel(epEnrollments, validation, "Валидация DTO", "in-process")
-    Rel(epCourses, mapping, "Маппинг сущность ↔ DTO", "in-process")
-    Rel(epLessons, mapping, "Маппинг сущность ↔ DTO", "in-process")
-    Rel(epEnrollments, mapping, "Маппинг сущность ↔ DTO", "in-process")
-    Rel(epCourses, contracts, "Входной/выходной контракт", "in-process")
-    Rel(epLessons, contracts, "Входной/выходной контракт", "in-process")
-    Rel(epEnrollments, contracts, "Входной/выходной контракт", "in-process")
-    Rel(epCourses, dbCtx, "Сохранение и загрузка курсов", "EF Core / Npgsql")
-    Rel(epLessons, dbCtx, "Сохранение и загрузка уроков", "EF Core / Npgsql")
-    Rel(epEnrollments, dbCtx, "Сохранение и загрузка записей", "EF Core / Npgsql")
-    Rel(dbCtx, models, "Работа с доменными сущностями", "in-process")
-    Rel(dbCtx, db, "SQL и применение миграций", "TCP/5432")
-    Rel(mapping, models, "Преобразование моделей", "in-process")
+    Courses -->|Валидация DTO<br/>in-process| Validation
+    Lessons -->|Валидация DTO<br/>in-process| Validation
+    Enrollments -->|Валидация DTO<br/>in-process| Validation
 
-    UpdateLayoutParams($c4ShapeInRow="4")
+    Courses -->|Маппинг сущность ↔ DTO<br/>in-process| Mapping
+    Lessons -->|Маппинг сущность ↔ DTO<br/>in-process| Mapping
+    Enrollments -->|Маппинг сущность ↔ DTO<br/>in-process| Mapping
+
+    Courses -->|Входной/выходной контракт<br/>in-process| Contracts
+    Lessons -->|Входной/выходной контракт<br/>in-process| Contracts
+    Enrollments -->|Входной/выходной контракт<br/>in-process| Contracts
+
+    Courses -->|Сохранение и загрузка курсов<br/>EF Core / Npgsql| DbCtx
+    Lessons -->|Сохранение и загрузка уроков<br/>EF Core / Npgsql| DbCtx
+    Enrollments -->|Сохранение и загрузка записей<br/>EF Core / Npgsql| DbCtx
+
+    DbCtx -->|Работа с доменными сущностями<br/>in-process| Models
+    DbCtx -->|SQL и применение миграций<br/>TCP/5432| DB
+
+    Mapping -->|Преобразование моделей<br/>in-process| Models
 ```
 
 **Роли компонентов (уровень 3):**
