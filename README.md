@@ -56,13 +56,13 @@
 
 ## C4 Диаграммы
 
-Архитектура документирована в нотации C4 (в репозитории как Markdown-файлы с Mermaid-разметкой, отображаются на GitHub):
+Архитектура dokumentирована в нотации C4. Изображения в репозитории:
 
 | Уровень | Файл | Описание |
 |---------|------|----------|
-| **Level 1 — Context** | `C4 Level 1 - Context.md` | Пользователь, веб-интерфейс, 3 микросервиса и внешняя база данных |
-| **Level 2 — Container** | `C4 Level 2 - Container.md` | Контейнеры: nginx-lb, веб-интерфейс, course-service, auth-service, progress-service, PostgreSQL |
-| **Level 3 — Component** | `C4 Level 3 - Component.md` | Внутренние компоненты Course Service: API, сервис, репозиторий, общие модели |
+| **Level 1 — Context** | `C4 Level 1 — Context.png` | Пользователь, веб-интерфейс, 3 микросервиса и внешняя база данных |
+| **Level 2 — Container** | `C4 Level 2 — Container.png` | Контейнеры: nginx-lb, веб-интерфейс, course-service, auth-service, progress-service, PostgreSQL |
+| **Level 3 — Component** | `C4 Level 3 — Component.png` | Внутренние компоненты Course Service: API, сервис, репозиторий, общие модели |
 
 
 ---
@@ -72,6 +72,9 @@
 ```
 docker-compose.yml          # оркестрация всех сервисов
 .env                        # секреты (POSTGRES_PASSWORD, JWT_SECRET)
+C4 Level 1 — Context.png    # C4 Level 1 — Контекст
+C4 Level 2 — Container.png  # C4 Level 2 — Контейнеры
+C4 Level 3 — Component.png  # C4 Level 3 — Компоненты
 nginx-lb/
   Dockerfile                # балансировщик + прокси
   nginx.conf                # конфигурация маршрутизации nginx
