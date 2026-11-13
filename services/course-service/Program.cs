@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration
     .GetConnectionString("DefaultConnection")
-    ?? "Host=localhost;Port=5432;Database=coursetracker;Username=postgres;Password=postgres";
+    ?? "Host=db;Port=5432;Database=coursetracker;Username=postgres;Password=postgres";
 
 builder.Services.AddDbContext<CourseDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -70,7 +70,7 @@ app.MapGet("/api/courses/{id:int}", async (int id, CourseDbContext db) =>
 
 app.MapGet("/", () => Results.Ok(new
 {
-    message = "Course Tracker API is running",
+    message = "Course Tracker - Course Service is running",
     endpoints = new[] { "/api/courses", "/api/courses/{id}" }
 }));
 

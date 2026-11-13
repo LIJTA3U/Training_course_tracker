@@ -1,0 +1,12 @@
+{
+  "name": "progress-service",
+  "version": "1.0.0",
+  "description": "Сервис прогресса обучения: запись на курс, отметка уроков",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

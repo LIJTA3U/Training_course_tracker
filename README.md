@@ -1,340 +1,152 @@
 # Training Course Tracker
 
-**REST API для отслеживания учебных курсов, учебных часов и прогресса обучения.**
-
-Проект разработан на C# с использованием ASP.NET Core Minimal API. Приложение поддерживает локальный запуск и запуск в Docker-контейнере.
+Система отслеживания учебных курсов, построена по микросервисной архитектуре.
 
 ---
 
-## О проекте
+## 1. Идея системы
 
-Training Course Tracker — учебный проект, предназначенный для отслеживания прохождения образовательных курсов.
+**Training Course Tracker** позволяет пользователям просматривать каталог образовательных курсов, записываться на них и отслеживать свой прогресс обучения. Административная часть (каталог курсов) управляет списком курсов и объёмом учебных часов.
 
-API позволяет получать информацию о доступных курсах, общем количестве учебных часов, пройденном материале и статусе завершения курса.
+Цель — дать пользователю личный кабинет, где он видит, на какие курсы записан, и какую часть материала уже прошёл.
 
-Приложение построено на ASP.NET Core Minimal API и может запускаться как локальное приложение .NET или как Docker-контейнер.
+---
 
-## Возможности
+## 2. Минимальный пользовательский сценарий
 
-- Получение списка учебных курсов.
-- Получение информации о конкретном курсе по идентификатору.
-- Отслеживание общего количества и количества пройденных часов.
-- Определение статуса завершения курса.
-- Сборка и запуск приложения в Docker.
-- Проверка работы API через `curl` или браузер.
+1. Пользователь открывает главную страницу (через балансировщик на порту 80).
+2. Регистрируется или логинится → получает JWT-токен.
+3. Открывает раздел «Курсы», видит список доступных курсов с прогрессом.
+4. Жмёт «Записаться» на интересующий курс.
+5. Переходит в «Мой прогресс», видит записи и процент прохождения по каждому курсу.
+6. Может отмечать уроки как пройденные (через API сервиса прогресса).
 
-## Технологии
+---
 
-| Технология | Назначение |
-| --- | --- |
-| C# | Основной язык программирования |
-| ASP.NET Core Minimal API | Реализация REST API |
-| .NET 10 | Платформа выполнения приложения |
-| Docker | Контейнеризация приложения |
-| Ubuntu Linux | Операционная система для запуска и тестирования |
+## 3. Архитектура (3+ микросервиса)
 
-## API Endpoints
+Каждый сервис lebt в своей папке, имеет अपना API и свой `Dockerfile`.
 
-Базовый адрес API:
+| Сервис | Папка | Ответственность | API | Порт внутри сети |
+|--------|-------|-----------------|-----|------------------|
+| **course-service** | `services/course-service/` | Каталог курсов: получение списка и данных курса | `GET /api/courses`, `GET /api/courses/{id}` | 8080 (.NET) |
+| **auth-service** | `services/auth-service/` | Регистрация, логин, проверка JWT | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` | 3000 (Node.js) |
+| **progress-service** | `services/progress-service/` | Запись на курс, отметка уроков, прогресс пользователя | `POST /api/progress/enroll`, `POST /api/progress/lesson`, `GET /api/progress/:userId` | 3000 (Node.js) |
+| **web-frontend** | `web-frontend/` | Статический сайт HTML/CSS/JS | — (статика) | 8080 (nginx) |
+| **nginx-lb** | `nginx-lb/` | **Балансировщик нагрузки** + обратный прокси, маршрутизация `/api/*` на сервисы | — | 80 |
 
-```
-http://localhost:8080
-```
-
-| Метод | Endpoint | Описание |
-| --- | --- | --- |
-| `GET` | `/` | Проверка работоспособности API |
-| `GET` | `/api/courses` | Получение списка всех курсов |
-| `GET` | `/api/courses/{id}` | Получение курса по идентификатору |
-
-### GET /
-
-Проверяет, что приложение запущено и отвечает на запросы.
+Все микросервисы доступны извне через единую точку входа — `nginx-lb` (порт 80 хоста). Фронтенд и API разделяют один источник, поэтому CORS не требуется.
 
 ```
-curl http://localhost:8080/
+пользователь (браузер)
+        |
+     порт 80
+        |
+    +-----v-----+
+    | nginx-lb  |  <-- балансировщик + reverse proxy
+    +-----+-----+
+          |
+   +------+------+------+------+
+   |      |      |      |      |
+ web   course   auth   progress
+-frontend service service service
 ```
 
-### GET /api/courses
+---
 
-Возвращает список доступных учебных курсов.
-
-```
-curl http://localhost:8080/api/courses
-```
-
-### GET /api/courses/{id}
-
-Возвращает информацию о курсе с указанным идентификатором.
+## 4. Структура репозитория
 
 ```
-curl http://localhost:8080/api/courses/1
+docker-compose.yml          # оркестрация всех сервисов
+.env                        # секреты (POSTGRES_PASSWORD, JWT_SECRET)
+nginx-lb/
+  Dockerfile                # балансировщик + прокси
+  nginx.conf                # конфигурация маршрутизации nginx
+web-frontend/
+  Dockerfile                # статический сайт (nginx)
+  index.html
+  style.css
+  app.js
+services/
+  course-service/           # .NET каталог курсов
+    Dockerfile
+    Program.cs
+    CourseTrackerApi.csproj
+  auth-service/             # Node.js аутентификация
+    Dockerfile
+    package.json
+    server.js
+  progress-service/         # Node.js прогресс
+    Dockerfile
+    package.json
+    server.js
 ```
 
-Если курс с указанным идентификатором не найден, API возвращает HTTP-статус `404 Not Found`.
+---
 
-## Примеры ответов
+## 5. Запуск
 
-### Проверка работоспособности API
+Требуются: Docker + Docker Compose.
 
-```
-{
-  "message": "Course Tracker API is running",
-  "endpoints": [
-    "/api/courses",
-    "/api/courses/{id}"
-  ]
-}
+Создайте `.env` (или проверьте существующий):
+
+```env
+POSTGRES_PASSWORD=root
+JWT_SECRET=your-super-secret-key
 ```
 
-### Список учебных курсов
+Запустите все сервисы:
 
-```
-[
-  {
-    "id": 1,
-    "name": "C# и .NET",
-    "totalHours": 72,
-    "completedHours": 35,
-    "completed": false
-  },
-  {
-    "id": 2,
-    "name": "Базы данных",
-    "totalHours": 48,
-    "completedHours": 20,
-    "completed": false
-  },
-  {
-    "id": 3,
-    "name": "Docker",
-    "totalHours": 24,
-    "completedHours": 24,
-    "completed": true
-  }
-]
+```bash
+docker compose up --build
 ```
 
-### Структура объекта курса
-
-| Поле | Тип | Описание |
-| --- | --- | --- |
-| `id` | `int` | Уникальный идентификатор курса |
-| `name` | `string` | Название курса |
-| `totalHours` | `int` | Общее количество учебных часов |
-| `completedHours` | `int` | Количество пройденных часов |
-| `completed` | `bool` | Статус завершения курса |
-
-## Локальный запуск без Docker
-
-### 1\. Перейти в корень проекта
+Откройте в браузере:
 
 ```
-cd ~/Training_course_tracker
+http://localhost
 ```
 
-### 2\. Восстановить зависимости
+Балансировщик (`nginx-lb`) принимает трафик на порт 80 и маршрутизирует:
+- `/` → веб-интерфейс (`web-frontend`)
+- `/api/courses*` → `course-service`
+- `/api/auth*` → `auth-service`
+- `/api/progress*` → `progress-service`
 
-```
-dotnet restore
-```
+Остановить и удалить контейнеры:
 
-### 3\. Запустить приложение
-
-```
-dotnet run
-```
-
-API должен быть доступен по адресу:
-
-```
-http://localhost:8080
+```bash
+docker compose down
 ```
 
-Если приложение запускается на другом порту, используй адрес, указанный в выводе `dotnet run`, либо настрой порт `8080` в конфигурации запуска.
+### Проверка API напрямую (через балансировщик)
 
-### 4\. Проверить работу API
+```bash
+# Список курсов
+curl http://localhost/api/courses
 
-Выполни команды в другом терминале:
+# Конкретный курс
+curl http://localhost/api/courses/1
 
-```
-curl http://localhost:8080/
-curl http://localhost:8080/api/courses
-curl http://localhost:8080/api/courses/1
-```
+# Регистрация
+curl -X POST http://localhost/api/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"ivan","password":"secret"}'
 
-Для остановки приложения нажми `Ctrl + C`.
-
-## Запуск в Docker
-
-### 1\. Собрать Docker-образ
-
-Перейди в корень проекта:
-
-```
-cd ~/Training_course_tracker
+# Логин
+curl -X POST http://localhost/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"ivan","password":"secret"}'
 ```
 
-Собери образ приложения:
+---
 
-```
-docker build -t course-tracker-api:1.0 .
-```
+## 6. Технологии
 
-Проверь, что образ создан:
-
-```
-docker images
-```
-
-### 2\. Запустить контейнер
-
-```
-docker run -d \
-  --name course-tracker \
-  -p 8080:8080 \
-  course-tracker-api:1.0
-```
-
-Описание параметров:
-
-- `-d` — запуск контейнера в фоновом режиме.
-- `--name course-tracker` — имя контейнера.
-- `-p 8080:8080` — проброс порта хоста `8080` на порт контейнера `8080`.
-- `course-tracker-api:1.0` — имя и тег Docker-образа.
-
-### 3\. Проверить доступность API
-
-После запуска контейнера выполни:
-
-```
-curl http://localhost:8080/
-curl http://localhost:8080/api/courses
-curl http://localhost:8080/api/courses/1
-```
-
-Эти же адреса можно открыть в браузере:
-
-- Главная страница API
-- Список курсов
-- Курс с ID 1
-
-Ссылки будут работать, если приложение запущено на локальном компьютере и порт `8080` доступен.
-
-## Проверка и управление контейнером
-
-### Просмотр запущенных контейнеров
-
-```
-docker ps
-```
-
-Для просмотра всех контейнеров, включая остановленные:
-
-```
-docker ps -a
-```
-
-### Просмотр логов
-
-Вывести логи контейнера:
-
-```
-docker logs course-tracker
-```
-
-Следить за логами в реальном времени:
-
-```
-docker logs -f course-tracker
-```
-
-Для завершения просмотра логов нажми `Ctrl + C`. Это не останавливает контейнер.
-
-### Остановка контейнера
-
-```
-docker stop course-tracker
-```
-
-### Удаление контейнера
-
-```
-docker rm course-tracker
-```
-
-При необходимости контейнер можно создать заново, используя ранее собранный образ.
-
-## Полный сценарий демонстрации
-
-Ниже приведён последовательный сценарий проверки проекта для демонстрации работы API и Docker.
-
-### Шаг 1. Запуск без Docker
-
-```
-dotnet run
-```
-
-В другом терминале выполни:
-
-```
-curl http://localhost:8080/api/courses
-```
-
-После проверки останови приложение сочетанием `Ctrl + C`.
-
-### Шаг 2. Сборка Docker-образа
-
-```
-docker build -t course-tracker-api:1.0 .
-```
-
-### Шаг 3. Запуск контейнера
-
-```
-docker run -d \
-  --name course-tracker \
-  -p 8080:8080 \
-  course-tracker-api:1.0
-```
-
-### Шаг 4. Проверка контейнера
-
-```
-docker ps
-```
-
-### Шаг 5. Проверка API
-
-```
-curl http://localhost:8080/api/courses
-```
-
-### Шаг 6. Проверка логов
-
-```
-docker logs course-tracker
-```
-
-После демонстрации останови и удали контейнер:
-
-```
-docker stop course-tracker
-docker rm course-tracker
-```
-
-## Структура проекта
-
-```
-Training_course_tracker/
-├── CourseTrackerApi.csproj  # Файл проекта .NET
-├── Dockerfile               # Инструкции сборки Docker-образа
-├── Program.cs               # Точка входа и настройка API
-├── README.md                # Документация проекта
-├── git-conflictmd           # Дополнительный файл репозитория
-├── .gitignore               # Исключения для Git
-├── bin/                     # Результаты сборки .NET
-└── obj/                     # Промежуточные файлы .NET
-```
-
-Каталоги `bin/` и `obj/` создаются автоматически при сборке и запуске .NET-проекта. Их не следует добавлять в Git. Убедись, что они исключены в `.gitignore`.
+- **Балансировщик / прокси:** nginx
+- **Фронтенд:** HTML5 + CSS3 + vanilla JS (без фреймворков)
+- **course-service:** ASP.NET Core Minimal API (.NET 10) + PostgreSQL (EF Core, Npgsql)
+- **auth-service:** Node.js + Express + bcryptjs + jsonwebtoken
+- **progress-service:** Node.js + Express
+- **Контейнеризация:** Docker + Docker Compose
+- **Языки:** C#, JavaScript

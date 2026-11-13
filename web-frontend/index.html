@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Course Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Course Tracker</h1>
+      <p class="subtitle">Отслеживание прогресса обучения</p>
+    </header>
+    <section id="auth" class="card">
+      <h2>Вход / Регистрация</h2>
+      <div class="form-row">
+        <input type="text" id="regUsername" placeholder="Имя пользователя" />
+        <input type="password" id="regPassword" placeholder="Пароль" />
+        <button id="btnRegister">Регистрация</button>
+      </div>
+      <div class="form-row">
+        <input type="text" id="loginUsername" placeholder="Имя пользователя" />
+        <input type="password" id="loginPassword" placeholder="Пароль" />
+        <button id="btnLogin">Войти</button>
+      </div>
+      <p id="authMsg" class="msg"></p>
+      <p id="userInfo" class="user-info"></p>
+      <button id="btnLogout" style="display:none">Выйти</button>
+    </section>
+    <section id="courses" class="card" style="display:none">
+      <h2>Курсы</h2>
+      <div id="coursesList" class="course-grid"></div>
+      <p id="coursesMsg" class="msg"></p>
+    </section>
+    <section id="progress" class="card" style="display:none">
+      <h2>Мой прогресс</h2>
+      <div id="progressList"></div>
+      <p id="progressMsg" class="msg"></p>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
