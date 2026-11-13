@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600" font-family="Arial, sans-serif">
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="500" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a365d">C4 Level 2 — Container (Контейнеры)</text>
+
+  <!-- User -->
+  <ellipse cx="100" cy="140" rx="45" ry="40" fill="#e2e8f0" stroke="#4a5568" stroke-width="2"/>
+  <text x="100" y="145" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a365d">Пользователь</text>
+
+  <!-- System Boundary -->
+  <rect x="220" y="50" width="680" height="460" fill="#f7fafc" stroke="#cbd5e0" stroke-width="2" rx="8"/>
+  <text x="230" y="75" font-size="15" font-weight="bold" fill="#1a365d">Training Course Tracker</text>
+
+  <!-- nginx-lb -->
+  <rect x="250" y="110" width="170" height="80" fill="#fffbeb" stroke="#d69e2e" stroke-width="2" rx="6"/>
+  <text x="335" y="138" text-anchor="middle" font-size="13" font-weight="bold" fill="#975a16">nginx-lb</text>
+  <text x="335" y="156" text-anchor="middle" font-size="11" fill="#4a5568">Балансировщик / Reverse Proxy</text>
+  <text x="335" y="172" text-anchor="middle" font-size="10" fill="#4a5568">порт 80</text>
+
+  <!-- Web Frontend -->
+  <rect x="450" y="110" width="170" height="80" fill="#ebf8ff" stroke="#3182ce" stroke-width="2" rx="6"/>
+  <text x="535" y="138" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a365d">Веб-интерфейс</text>
+  <text x="535" y="156" text-anchor="middle" font-size="11" fill="#4a5568">HTML, CSS, JS</text>
+  <text x="535" y="172" text-anchor="middle" font-size="10" fill="#4a5568">Nginx Alpine, 8080</text>
+
+  <!-- Course Service -->
+  <rect x="650" y="110" width="170" height="80" fill="#ebf8ff" stroke="#3182ce" stroke-width="2" rx="6"/>
+  <text x="735" y="138" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a365d">Course Service</text>
+  <text x="735" y="156" text-anchor="middle" font-size="11" fill="#4a5568">.NET 10, ASP.NET Core</text>
+  <text x="735" y="172" text-anchor="middle" font-size="10" fill="#4a5568">EF Core + Npgsql</text>
+
+  <!-- Auth Service -->
+  <rect x="250" y="230" width="170" height="80" fill="#ebf8ff" stroke="#3182ce" stroke-width="2" rx="6"/>
+  <text x="335" y="258" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a365d">Auth Service</text>
+  <text x="335" y="276" text-anchor="middle" font-size="11" fill="#4a5568">Node.js 20, Express</text>
+  <text x="335" y="292" text-anchor="middle" font-size="10" fill="#4a5568">JWT, bcryptjs</text>
+
+  <!-- Progress Service -->
+  <rect x="450" y="230" width="170" height="80" fill="#ebf8ff" stroke="#3182ce" stroke-width="2" rx="6"/>
+  <text x="535" y="258" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a365d">Progress Service</text>
+  <text x="535" y="276" text-anchor="middle" font-size="11" fill="#4a5568">Node.js 20, Express</text>
+  <text x="535" y="292" text-anchor="middle" font-size="10" fill="#4a5568">запись, уроки</text>
+
+  <!-- Database -->
+  <rect x="650" y="230" width="170" height="80" fill="#faf5ff" stroke="#9f7aea" stroke-width="2" rx="6"/>
+  <text x="735" y="258" text-anchor="middle" font-size="13" font-weight="bold" fill="#553c9a">PostgreSQL</text>
+  <text x="735" y="276" text-anchor="middle" font-size="11" fill="#4a5568">coursetracker</text>
+  <text x="735" y="292" text-anchor="middle" font-size="10" fill="#4a5568">таблица Courses</text>
+
+  <!-- Relationships -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4a5568"/>
+    </marker>
+  </defs>
+
+  <line x1="145" y1="140" x2="250" y2="150" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="190" y="142" font-size="10" fill="#4a5568">HTTP :80</text>
+
+  <line x1="335" y1="190" x2="450" y2="150" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="390" y="180" font-size="10" fill="#4a5568">статика + API</text>
+
+  <line x1="535" y1="190" x2="650" y2="150" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="585" y="180" font-size="10" fill="#4a5568">/api/courses*</text>
+
+  <line x1="335" y1="270" x2="450" y2="270" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="390" y="262" font-size="10" fill="#4a5568">/api/auth*</text>
+
+  <line x1="535" y1="270" x2="650" y2="270" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="590" y="262" font-size="10" fill="#4a5568">/api/progress*</text>
+
+  <line x1="735" y1="190" x2="735" y2="230" stroke="#9f7aea" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="748" y="208" font-size="10" fill="#553c9a">SQL</text>
+
+  <!-- Legend -->
+  <rect x="820" y="500" width="160" height="80" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1" rx="4"/>
+  <text x="835" y="518" font-size="12" font-weight="bold" fill="#1a365d">Легенда</text>
+  <text x="835" y="538" font-size="11" fill="#4a5568">👤 Пользователь</text>
+  <text x="835" y="553" font-size="11" fill="#4a5568">📦 Контейнер</text>
+  <text x="835" y="568" font-size="11" fill="#4a5568">🗄 База данных</text>
+</svg>

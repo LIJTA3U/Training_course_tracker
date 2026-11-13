@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" font-family="Arial, sans-serif">
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="450" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a365d">C4 Level 3 — Component (Компоненты Course Service)</text>
+
+  <!-- User / Frontend -->
+  <ellipse cx="80" cy="130" rx="40" ry="35" fill="#e2e8f0" stroke="#4a5568" stroke-width="2"/>
+  <text x="80" y="135" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a365d">Пользователь / Frontend</text>
+
+  <!-- Container Boundary -->
+  <rect x="180" y="60" width="640" height="400" fill="#f7fafc" stroke="#cbd5e0" stroke-width="2" rx="8"/>
+  <text x="190" y="85" font-size="15" font-weight="bold" fill="#1a365d">Course Service (контейнер)</text>
+  <text x="190" y="103" font-size="11" fill="#4a5568">.NET 10, ASP.NET Core Minimal API</text>
+
+  <!-- API Endpoints -->
+  <rect x="220" y="120" width="180" height="70" fill="#ebf8ff" stroke="#3182ce" stroke-width="2" rx="6"/>
+  <text x="310" y="142" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a365d">API Endpoints</text>
+  <text x="310" y="159" text-anchor="middle" font-size="10" fill="#4a5568">Minimal API (C#)</text>
+  <text x="310" y="174" text-anchor="middle" font-size="9" fill="#4a5568">GET /api/courses</text>
+
+  <!-- CourseService -->
+  <rect x="440" y="120" width="180" height="70" fill="#ebf8ff" stroke="#3182ce" stroke-width="2" rx="6"/>
+  <text x="530" y="142" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a365d">CourseService</text>
+  <text x="530" y="159" text-anchor="middle" font-size="10" fill="#4a5568">бизнес-логика (C#)</text>
+
+  <!-- CourseRepository -->
+  <rect x="220" y="230" width="180" height="70" fill="#ebf8ff" stroke="#3182ce" stroke-width="2" rx="6"/>
+  <text x="310" y="252" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a365d">CourseRepository</text>
+  <text x="310" y="269" text-anchor="middle" font-size="10" fill="#4a5568">доступ к данным (C#)</text>
+  <text x="310" y="284" text-anchor="middle" font-size="9" fill="#4a5568">EF Core</text>
+
+  <!-- Shared Models -->
+  <rect x="440" y="230" width="180" height="70" fill="#ebf8ff" stroke="#3182ce" stroke-width="2" rx="6"/>
+  <text x="530" y="252" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a365d">Shared Models</text>
+  <text x="530" y="269" text-anchor="middle" font-size="10" fill="#4a5568">Course, Enrollment</text>
+  <text x="530" y="284" text-anchor="middle" font-size="9" fill="#4a5568">DTO (C#)</text>
+
+  <!-- External DB -->
+  <rect x="680" y="280" width="110" height="70" fill="#faf5ff" stroke="#9f7aea" stroke-width="2" rx="6"/>
+  <text x="735" y="305" text-anchor="middle" font-size="12" font-weight="bold" fill="#553c9a">PostgreSQL</text>
+  <text x="735" y="322" text-anchor="middle" font-size="10" fill="#4a5568">таблица Courses</text>
+
+  <!-- Relationships -->
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4a5568"/>
+    </marker>
+  </defs>
+
+  <line x1="120" y1="130" x2="220" y2="155" stroke="#4a5568" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="165" y="125" font-size="10" fill="#4a5568">HTTP/JSON</text>
+
+  <line x1="310" y1="190" x2="440" y2="155" stroke="#4a5568" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="370" y="180" font-size="10" fill="#4a5568">вызывает (C#)</text>
+
+  <line x1="310" y1="190" x2="310" y2="230" stroke="#4a5568" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="320" y="210" font-size="10" fill="#4a5568">запрашивает (C#)</text>
+
+  <line x1="530" y1="190" x2="530" y2="230" stroke="#4a5568" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="540" y="210" font-size="10" fill="#4a5568">использует (C#)</text>
+
+  <line x1="400" y1="300" x2="680" y2="280" stroke="#9f7aea" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="535" y="290" font-size="10" fill="#553c9a">SQL (Npgsql)</text>
+
+  <!-- Internal deps dashed -->
+  <line x1="310" y1="155" x2="220" y2="155" stroke="#718096" stroke-width="1" stroke-dasharray="4,2"/>
+  <line x1="530" y1="155" x2="440" y2="155" stroke="#718096" stroke-width="1" stroke-dasharray="4,2"/>
+
+  <!-- Legend -->
+  <rect x="20" y="490" width="140" height="60" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1" rx="4"/>
+  <text x="35" y="510" font-size="12" font-weight="bold" fill="#1a365d">Легенда</text>
+  <text x="35" y="530" font-size="11" fill="#4a5568">C# компонент</text>
+  <text x="35" y="545" font-size="11" fill="#4a5568">PostgreSQL</text>
+</svg>
