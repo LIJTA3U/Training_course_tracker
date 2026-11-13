@@ -34,6 +34,8 @@
 | **progress-service** | `services/progress-service/` | Запись на курс, отметка уроков, прогресс пользователя | `POST /api/progress/enroll`, `POST /api/progress/lesson`, `GET /api/progress/:userId` | 3000 (Node.js) |
 | **web-frontend** | `web-frontend/` | Статический сайт HTML/CSS/JS | — (статика) | 8080 (nginx) |
 | **nginx-lb** | `nginx-lb/` | **Балансировщик нагрузки** + обратный прокси, маршрутизация `/api/*` на сервисы | — | 80 |
+| **shared** | `shared/` | Общая библиотека с моделями на C# (Course, Enrollment, AuthResponse, ApiError) | — | — |
+| **api-client** | `api-client/` | Типизированный C# HttpClient-клиент для вызовов API через балансировщик | — | — |
 
 Все микросервисы доступны извне через единую точку входа — `nginx-lb` (порт 80 хоста). Фронтенд и API разделяют один источник, поэтому CORS не требуется.
 
@@ -51,6 +53,17 @@
  web   course   auth   progress
 -frontend service service service
 ```
+
+## C4 Диаграммы
+
+Архитектура документирована в нотации C4 (в репозитории как Markdown-файлы с Mermaid-разметкой, отображаются на GitHub):
+
+| Уровень | Файл | Описание |
+|---------|------|----------|
+| **Level 1 — Context** | `C4 Level 1 - Context.md` | Пользователь, веб-интерфейс, 3 микросервиса и внешняя база данных |
+| **Level 2 — Container** | `C4 Level 2 - Container.md` | Контейнеры: nginx-lb, веб-интерфейс, course-service, auth-service, progress-service, PostgreSQL |
+| **Level 3 — Component** | `C4 Level 3 - Component.md` | Внутренние компоненты Course Service: API, сервис, репозиторий, общие модели |
+
 
 ---
 
@@ -80,6 +93,16 @@ services/
     Dockerfile
     package.json
     server.js
+shared/
+  CourseTracker.Shared.csproj  # общая библиотека моделей на C# (.NET 10)
+  Models/
+    Course.cs
+    Enrollment.cs
+    AuthResponse.cs
+    ApiError.cs
+api-client/
+  CourseTracker.Client.csproj  # типизированный C# HttpClient-клиент
+  CourseTrackerClient.cs       # методы: GetCourses, Login, Enroll и т.д.
 ```
 
 ---
@@ -148,5 +171,8 @@ curl -X POST http://localhost/api/auth/login \
 - **course-service:** ASP.NET Core Minimal API (.NET 10) + PostgreSQL (EF Core, Npgsql)
 - **auth-service:** Node.js + Express + bcryptjs + jsonwebtoken
 - **progress-service:** Node.js + Express
+- **shared:** C# библиотека моделей (Course, Enrollment, AuthResponse, ApiError) на .NET 10
+- **api-client:** Типизированный C# HttpClient-клиент (CourseTrackerClient) для вызовов API через балансировщик
 - **Контейнеризация:** Docker + Docker Compose
+- **Диаграммы:** C4 (Mermaid, .md-файлы в корне репозитория)
 - **Языки:** C#, JavaScript
