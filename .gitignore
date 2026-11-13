@@ -1,6 +1,30 @@
+## .NET
 bin/
+bin\\*/
 obj/
-.vs/
+obj\\*/
+[Dd]ebug/
+[Rr]elease/
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Docker
+.dockerignore
+## Docker
+.dockerignore
 .env
