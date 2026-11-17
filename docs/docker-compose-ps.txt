@@ -1,0 +1,7 @@
+NAME                                         IMAGE                                      COMMAND                  SERVICE            CREATED         STATUS                   PORTS
+training-course-tracker-auth-service-1       training-course-tracker-auth-service       "docker-entrypoint.s…"   auth-service       7 seconds ago   Up 7 seconds             3000/tcp
+training-course-tracker-course-service-1     training-course-tracker-course-service     "dotnet CourseTracke…"   course-service     7 seconds ago   Up Less than a second    8080/tcp
+training-course-tracker-nginx-lb-1           training-course-tracker-nginx-lb           "/docker-entrypoint.…"   nginx-lb           7 seconds ago   Up Less than a second    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+training-course-tracker-progress-service-1   training-course-tracker-progress-service   "docker-entrypoint.s…"   progress-service   7 seconds ago   Up 6 seconds             3000/tcp
+training-course-tracker-web-frontend-1       training-course-tracker-web-frontend       "/docker-entrypoint.…"   web-frontend       7 seconds ago   Up 6 seconds             80/tcp, 8080/tcp
+training-db                                  postgres:16                                "docker-entrypoint.s…"   db                 7 seconds ago   Up 6 seconds (healthy)   0.0.0.0:5441->5432/tcp, [::]:5441->5432/tcp

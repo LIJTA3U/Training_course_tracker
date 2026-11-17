@@ -105,9 +105,11 @@ Training Course Tracker — учебный проект для отслежив�
 ```
 docker-compose.yml          # оркестрация всех сервисов
 .env                        # секреты (POSTGRES_PASSWORD, JWT_SECRET)
-C4 Level 1 — Context.png    # C4 Level 1 — Контекст
-C4 Level 2 — Container.png  # C4 Level 2 — Контейнеры
-C4 Level 3 — Component.png  # C4 Level 3 — Компоненты
+curl-examples.txt           # примеры curl-запросов к API
+docs/
+  c4-context.png            # C4 Level 1 — Контекст
+  c4-container.png          # C4 Level 2 — Контейнеры
+  c4-component.png          # C4 Level 3 — Компоненты
 nginx-lb/
   Dockerfile                # балансировщик + прокси
   nginx.conf                # конфигурация маршрутизации nginx
@@ -322,7 +324,7 @@ curl -X POST http://localhost:8080/api/courses \
 Регистрация пользователя:
 
 ```bash
-curl -X POST http://localhost/api/auth/register \
+curl -X POST http://localhost:8080/api/auth/register \
   -H 'Content-Type: application/json' \
   -d '{"username":"ivan","password":"secret"}'
 ```
@@ -330,7 +332,7 @@ curl -X POST http://localhost/api/auth/register \
 Вход (получение JWT):
 
 ```bash
-curl -X POST http://localhost/api/auth/login \
+curl -X POST http://localhost:8080/api/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"username":"ivan","password":"secret"}'
 ```
@@ -338,7 +340,7 @@ curl -X POST http://localhost/api/auth/login \
 Конкретный курс:
 
 ```bash
-curl http://localhost/api/courses/1
+curl http://localhost:8080/api/courses/1
 ```
 
 Остальные примеры запросов и ответов см. в Swagger UI: <http://localhost:8080/swagger>

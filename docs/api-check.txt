@@ -1,0 +1,16 @@
+=== GET /api/courses ===
+[{"id":1,"name":"C# и .NET","totalHours":72,"completedHours":35,"completed":false},{"id":2,"name":"Базы данных","totalHours":48,"completedHours":20,"completed":false},{"id":3,"name":"Docker","totalHours":24,"completedHours":24,"completed":true}]
+=== GET /api/courses/1 ===
+{"id":1,"name":"C# и .NET","totalHours":72,"completedHours":35,"completed":false}
+=== GET / (фронтенд) ===
+HTTP 200, размер 1661 байт
+=== Регистрация ===
+{"id":1,"username":"ivan"}
+=== Логин ===
+TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoiaXZhbiIsImlhdCI6MTc5NDkwMzQxMiwiZXhwIjoxNzk0OTQ2NjEyfQ.yOmDKWL57kj3yvUXTT7jvjBUoMJma1HXnXumiTVS6FQ
+
+=== Запись на курс ===
+{"userId":1,"courseId":1,"enrolledAt":"2026-11-17T08:16:52.798Z"}
+=== Прогресс пользователя ===
+{"userId":"1","enrolledCourses":[],"lessons":[]}
+=== PostgreSQL: таблица Courses ===
