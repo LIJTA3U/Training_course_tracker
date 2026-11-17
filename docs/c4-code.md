@@ -389,9 +389,9 @@ classDiagram
     CourseDbContext --> LessonProgress : DbSet
     CourseDbContext --> User : DbSet
 
-    Course --> Lesson : 1:N cascade
-    Course --> Enrollment : 1:N cascade
-    Enrollment --> LessonProgress : 1:N cascade
+    Course --> Lesson : oneToMany cascade
+    Course --> Enrollment : oneToMany cascade
+    Enrollment --> LessonProgress : oneToMany cascade
 
     MigrationInitialCreate --> CourseDbContext : applies to
 
