@@ -54,6 +54,10 @@
 
 ![C4 Level 3 — Component](docs/c4-component.png)
 
+### Level 4 — Code
+
+См. подробную внутреннюю структуру компонента Course Service в файле [`docs/c4-code.md`](docs/c4-code.md) (Mermaid диаграмма классов).
+
 ### 4. Схема развёртывания (Deployment)
 
 ```
