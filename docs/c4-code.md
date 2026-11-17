@@ -4,18 +4,18 @@
 
 ```mermaid
 classDiagram
-    %% ==================== ТОЧКА ВХОДА ====================
+    %% Точка входа
     class Program {
         <<entry point>>
         +Main(string[] args)
-        +ConfigureServices(IServiceCollection services)
-        +Configure(WebApplication app, IWebHostEnvironment env)
+        +ConfigureServices()
+        +Configure(WebApplication app)
         +MapCourseEndpoints(WebApplication app)
-        +EnsureDatabaseCreated(CourseDbContext db)
-        +SeedDemoData(CourseDbContext db)
+        +EnsureDatabaseCreated()
+        +SeedDemoData()
     }
 
-    %% ==================== ENDPOINTS (Minimal API) ====================
+    %% Endpoints Minimal API
     class CourseEndpoints {
         <<static class>>
         +MapGetCourses(WebApplication app)
@@ -41,136 +41,136 @@ classDiagram
         +MapGetProgress(WebApplication app)
     }
 
-    %% ==================== БИЗНЕС-ЛОГИКА (Services) ====================
+    %% Бизнес-логика Services
     class ICourseService {
         <<interface>>
-        +Task<List<CourseDTO>> GetAllCoursesAsync()
-        +Task<CourseDTO?> GetCourseByIdAsync(int id)
-        +Task<CourseDTO> CreateCourseAsync(CreateCourseRequest request)
-        +Task<bool> UpdateCourseAsync(int id, UpdateCourseRequest request)
-        +Task<bool> DeleteCourseAsync(int id)
-        +Task<double> CalculateProgressAsync(int courseId)
+        +GetAllCourses()
+        +GetCourseById(int id)
+        +CreateCourse(CreateCourseRequest request)
+        +UpdateCourse(int id, UpdateCourseRequest request)
+        +DeleteCourse(int id)
+        +CalculateProgress(int courseId)
     }
 
     class CourseService : ICourseService {
         -readonly CourseDbContext _db
         -readonly ILogger<CourseService> _logger
-        +CourseService(CourseDbContext db, ILogger<CourseService> logger)
-        +Task<List<CourseDTO>> GetAllCoursesAsync()
-        +Task<CourseDTO?> GetCourseByIdAsync(int id)
-        +Task<CourseDTO> CreateCourseAsync(CreateCourseRequest request)
-        +Task<bool> UpdateCourseAsync(int id, UpdateCourseRequest request)
-        +Task<bool> DeleteCourseAsync(int id)
-        +Task<double> CalculateProgressAsync(int courseId)
-        -CourseDTO MapToDto(Course course)
-        -Course MapToEntity(CreateCourseRequest request)
+        +CourseService(CourseDbContext db, ILogger logger)
+        +GetAllCourses()
+        +GetCourseById(int id)
+        +CreateCourse(CreateCourseRequest request)
+        +UpdateCourse(int id, UpdateCourseRequest request)
+        +DeleteCourse(int id)
+        +CalculateProgress(int courseId)
+        -MapToDto(Course course)
+        -MapToEntity(CreateCourseRequest request)
     }
 
     class IAuthService {
         <<interface>>
-        +Task<AuthResponse> RegisterAsync(RegisterRequest request)
-        +Task<AuthResponse> LoginAsync(LoginRequest request)
-        +Task<UserDto?> GetCurrentUserAsync(int userId)
+        +Register(RegisterRequest request)
+        +Login(LoginRequest request)
+        +GetCurrentUser(int userId)
     }
 
     class AuthService : IAuthService {
         -readonly CourseDbContext _db
         -readonly IJwtTokenService _jwt
         -readonly IPasswordHasher _passwordHasher
-        +Task<AuthResponse> RegisterAsync(RegisterRequest request)
-        +Task<AuthResponse> LoginAsync(LoginRequest request)
-        +Task<UserDto?> GetCurrentUserAsync(int userId)
-        -bool VerifyPassword(string input, string hash)
-        -string GenerateToken(User user)
+        +Register(RegisterRequest request)
+        +Login(LoginRequest request)
+        +GetCurrentUser(int userId)
+        -VerifyPassword(string input, string hash)
+        -GenerateToken(User user)
     }
 
     class IProgressService {
         <<interface>>
-        +Task<EnrollmentDto> EnrollAsync(int userId, int courseId)
-        +Task<LessonProgressDto> MarkLessonAsync(int userId, int courseId, int lessonId, bool completed)
-        +Task<ProgressDto> GetProgressAsync(int userId)
+        +Enroll(int userId, int courseId)
+        +MarkLesson(int userId, int courseId, int lessonId, bool completed)
+        +GetProgress(int userId)
     }
 
     class ProgressService : IProgressService {
         -readonly CourseDbContext _db
         +ProgressService(CourseDbContext db)
-        +Task<EnrollmentDto> EnrollAsync(int userId, int courseId)
-        +Task<LessonProgressDto> MarkLessonAsync(int userId, int courseId, int lessonId, bool completed)
-        +Task<ProgressDto> GetProgressAsync(int userId)
+        +Enroll(int userId, int courseId)
+        +MarkLesson(int userId, int courseId, int lessonId, bool completed)
+        +GetProgress(int userId)
     }
 
     class IJwtTokenService {
         <<interface>>
-        +string GenerateToken(User user)
-        +ClaimsPrincipal? ValidateToken(string token)
+        +GenerateToken(User user)
+        +ValidateToken(string token)
     }
 
     class JwtTokenService : IJwtTokenService {
         -readonly IConfiguration _config
-        +string GenerateToken(User user)
-        +ClaimsPrincipal? ValidateToken(string token)
+        +GenerateToken(User user)
+        +ValidateToken(string token)
     }
 
     class IPasswordHasher {
         <<interface>>
-        +string HashPassword(string password)
-        +bool Verify(string password, string hash)
+        +HashPassword(string password)
+        +Verify(string password, string hash)
     }
 
     class PasswordHasher : IPasswordHasher {
-        +string HashPassword(string password)
-        +bool Verify(string password, string hash)
+        +HashPassword(string password)
+        +Verify(string password, string hash)
     }
 
-    %% ==================== РЕПОЗИТОРИИ ====================
+    %% Репозитории
     class ICourseRepository {
         <<interface>>
-        +Task<List<Course>> GetAllAsync()
-        +Task<Course?> GetByIdAsync(int id)
-        +Task<Course> AddAsync(Course course)
-        +Task<bool> UpdateAsync(Course course)
-        +Task<bool> DeleteAsync(int id)
+        +GetAll()
+        +GetById(int id)
+        +Add(Course course)
+        +Update(Course course)
+        +Delete(int id)
     }
 
     class CourseRepository : ICourseRepository {
         -readonly CourseDbContext _db
         +CourseRepository(CourseDbContext db)
-        +Task<List<Course>> GetAllAsync()
-        +Task<Course?> GetByIdAsync(int id)
-        +Task<Course> AddAsync(Course course)
-        +Task<bool> UpdateAsync(Course course)
-        +Task<bool> DeleteAsync(int id)
+        +GetAll()
+        +GetById(int id)
+        +Add(Course course)
+        +Update(Course course)
+        +Delete(int id)
     }
 
     class IEnrollmentRepository {
         <<interface>>
-        +Task<List<Enrollment>> GetByUserIdAsync(int userId)
-        +Task<Enrollment?> GetAsync(int userId, int courseId)
-        +Task<Enrollment> AddAsync(Enrollment enrollment)
+        +GetByUserId(int userId)
+        +Get(int userId, int courseId)
+        +Add(Enrollment enrollment)
     }
 
     class EnrollmentRepository : IEnrollmentRepository {
         -readonly CourseDbContext _db
         +EnrollmentRepository(CourseDbContext db)
-        +Task<List<Enrollment>> GetByUserIdAsync(int userId)
-        +Task<Enrollment?> GetAsync(int userId, int courseId)
-        +Task<Enrollment> AddAsync(Enrollment enrollment)
+        +GetByUserId(int userId)
+        +Get(int userId, int courseId)
+        +Add(Enrollment enrollment)
     }
 
     class ILessonRepository {
         <<interface>>
-        +Task<List<LessonProgress>> GetUserProgressAsync(int userId, int courseId)
-        +Task<LessonProgress> UpsertAsync(LessonProgress progress)
+        +GetUserProgress(int userId, int courseId)
+        +Upsert(LessonProgress progress)
     }
 
     class LessonRepository : ILessonRepository {
         -readonly CourseDbContext _db
         +LessonRepository(CourseDbContext db)
-        +Task<List<LessonProgress>> GetUserProgressAsync(int userId, int courseId)
-        +Task<LessonProgress> UpsertAsync(LessonProgress progress)
+        +GetUserProgress(int userId, int courseId)
+        +Upsert(LessonProgress progress)
     }
 
-    %% ==================== ДОМЕННЫЕ МОДЕЛИ (Entities) ====================
+    %% Доменные модели
     class Course {
         +int Id
         +string Title
@@ -182,8 +182,8 @@ classDiagram
         +bool IsActive
         +DateTime CreatedAt
         +DateTime UpdatedAt
-        +List<Lesson> Lessons
-        +List<Enrollment> Enrollments
+        +List Lesson Lessons
+        +List Enrollment Enrollments
     }
 
     class Lesson {
@@ -204,7 +204,7 @@ classDiagram
         +int ProgressPercent
         +int CourseId
         +Course Course
-        +List<LessonProgress> LessonProgresses
+        +List LessonProgress LessonProgresses
     }
 
     class LessonProgress {
@@ -224,7 +224,7 @@ classDiagram
         +DateTime CreatedAt
     }
 
-    %% ==================== DTO (Запросы / Ответы) ====================
+    %% DTO
     class CourseDTO {
         +int Id
         +string Title
@@ -302,31 +302,31 @@ classDiagram
         +int LessonsTotal
     }
 
-    %% ==================== БАЗА ДАННЫХ ====================
+    %% База данных
     class CourseDbContext {
         <<EF Core DbContext>>
-        +DbSet<Course> Courses
-        +DbSet<Lesson> Lessons
-        +DbSet<Enrollment> Enrollments
-        +DbSet<LessonProgress> LessonProgresses
-        +DbSet<User> Users
-        +CourseDbContext(DbContextOptions<CourseDbContext> options)
+        +DbSet Course Courses
+        +DbSet Lesson Lessons
+        +DbSet Enrollment Enrollments
+        +DbSet LessonProgress LessonProgresses
+        +DbSet User Users
+        +CourseDbContext(DbContextOptions options)
         +int SaveChanges()
-        +Task<int> SaveChangesAsync(CancellationToken ct)
-        +protected override void OnModelCreating(ModelBuilder modelBuilder)
+        +Task int SaveChangesAsync()
+        +OnModelCreating(ModelBuilder modelBuilder)
     }
 
-    class Migration_20261016115536_InitialCreate {
+    class MigrationInitialCreate {
         <<EF Core Migration>>
         +Up(MigrationBuilder migrationBuilder)
         +Down(MigrationBuilder migrationBuilder)
     }
 
-    %% ==================== ВАЛИДАЦИЯ / ИСКЛЮЧЕНИЯ ====================
+    %% Исключения
     class ValidationException {
         <<exception>>
-        +List<string> Errors
-        +ValidationException(List<string> errors)
+        +List string Errors
+        +ValidationException(List string errors)
     }
 
     class NotFoundException {
@@ -340,7 +340,7 @@ classDiagram
         +InvokeAsync(HttpContext context, RequestDelegate next)
     }
 
-    %% ==================== СВЯЗИ ====================
+    %% Связи
     Program --> CourseEndpoints : registers
     Program --> AuthEndpoints : registers
     Program --> ProgressEndpoints : registers
@@ -357,7 +357,6 @@ classDiagram
     ICourseService <|.. CourseService : implements
     CourseService --> ICourseRepository : uses
     CourseService --> CourseRepository : uses
-    CourseService --> IMapper : maps
     CourseService --> CourseDTO : returns
 
     ICourseRepository <|.. CourseRepository : implements
@@ -392,7 +391,7 @@ classDiagram
     Course --> Enrollment : 1:N cascade
     Enrollment --> LessonProgress : 1:N cascade
 
-    Migration_20261016115536_InitialCreate --> CourseDbContext : applies to
+    MigrationInitialCreate --> CourseDbContext : applies to
 
     GlobalExceptionMiddleware --> ValidationException : catches
     GlobalExceptionMiddleware --> NotFoundException : catches
@@ -415,4 +414,4 @@ classDiagram
 | `CourseDTO`, `CreateCourseRequest`, `AuthResponse`, `ProgressDto` | DTO для запросов и ответов API |
 | `JwtTokenService`, `PasswordHasher` | Аутентификация и хеширование паролей |
 | `GlobalExceptionMiddleware` | Глобальная обработка исключений (`ValidationException`, `NotFoundException`) |
-| `Migration_20261016115536_InitialCreate` | Первая миграция EF Core |
+| `MigrationInitialCreate` | Первая миграция EF Core |
