@@ -41,7 +41,7 @@ classDiagram
         +MapGetProgress(WebApplication app)
     }
 
-    %% Бизнес-логика Services
+    %% Бизнес-логика Services (интерфейсы)
     class ICourseService {
         <<interface>>
         +GetAllCourses()
@@ -52,9 +52,9 @@ classDiagram
         +CalculateProgress(int courseId)
     }
 
-    class CourseService : ICourseService {
-        -readonly CourseDbContext _db
-        -readonly ILogger<CourseService> _logger
+    class CourseService {
+        -readonly _db
+        -readonly _logger
         +CourseService(CourseDbContext db, ILogger logger)
         +GetAllCourses()
         +GetCourseById(int id)
@@ -73,10 +73,11 @@ classDiagram
         +GetCurrentUser(int userId)
     }
 
-    class AuthService : IAuthService {
-        -readonly CourseDbContext _db
-        -readonly IJwtTokenService _jwt
-        -readonly IPasswordHasher _passwordHasher
+    class AuthService {
+        -readonly _db
+        -readonly _jwt
+        -readonly _passwordHasher
+        +AuthService(CourseDbContext db, IJwtTokenService jwt, IPasswordHasher hasher)
         +Register(RegisterRequest request)
         +Login(LoginRequest request)
         +GetCurrentUser(int userId)
@@ -91,8 +92,8 @@ classDiagram
         +GetProgress(int userId)
     }
 
-    class ProgressService : IProgressService {
-        -readonly CourseDbContext _db
+    class ProgressService {
+        -readonly _db
         +ProgressService(CourseDbContext db)
         +Enroll(int userId, int courseId)
         +MarkLesson(int userId, int courseId, int lessonId, bool completed)
@@ -105,8 +106,9 @@ classDiagram
         +ValidateToken(string token)
     }
 
-    class JwtTokenService : IJwtTokenService {
-        -readonly IConfiguration _config
+    class JwtTokenService {
+        -readonly _config
+        +JwtTokenService(IConfiguration config)
         +GenerateToken(User user)
         +ValidateToken(string token)
     }
@@ -117,12 +119,12 @@ classDiagram
         +Verify(string password, string hash)
     }
 
-    class PasswordHasher : IPasswordHasher {
+    class PasswordHasher {
         +HashPassword(string password)
         +Verify(string password, string hash)
     }
 
-    %% Репозитории
+    %% Репозитории (интерфейсы)
     class ICourseRepository {
         <<interface>>
         +GetAll()
@@ -132,8 +134,8 @@ classDiagram
         +Delete(int id)
     }
 
-    class CourseRepository : ICourseRepository {
-        -readonly CourseDbContext _db
+    class CourseRepository {
+        -readonly _db
         +CourseRepository(CourseDbContext db)
         +GetAll()
         +GetById(int id)
@@ -149,8 +151,8 @@ classDiagram
         +Add(Enrollment enrollment)
     }
 
-    class EnrollmentRepository : IEnrollmentRepository {
-        -readonly CourseDbContext _db
+    class EnrollmentRepository {
+        -readonly _db
         +EnrollmentRepository(CourseDbContext db)
         +GetByUserId(int userId)
         +Get(int userId, int courseId)
@@ -163,8 +165,8 @@ classDiagram
         +Upsert(LessonProgress progress)
     }
 
-    class LessonRepository : ILessonRepository {
-        -readonly CourseDbContext _db
+    class LessonRepository {
+        -readonly _db
         +LessonRepository(CourseDbContext db)
         +GetUserProgress(int userId, int courseId)
         +Upsert(LessonProgress progress)
