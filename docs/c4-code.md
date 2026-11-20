@@ -4,7 +4,6 @@
 
 ```mermaid
 classDiagram
-    %% Точка входа
     class Program {
         <<entry point>>
         +Main(string[] args)
@@ -15,7 +14,6 @@ classDiagram
         +SeedDemoData()
     }
 
-    %% Endpoints Minimal API
     class CourseEndpoints {
         <<static class>>
         +MapGetCourses(WebApplication app)
@@ -41,7 +39,6 @@ classDiagram
         +MapGetProgress(WebApplication app)
     }
 
-    %% Бизнес-логика Services (интерфейсы)
     class ICourseService {
         <<interface>>
         +GetAllCourses()
@@ -124,7 +121,6 @@ classDiagram
         +Verify(string password, string hash)
     }
 
-    %% Репозитории (интерфейсы)
     class ICourseRepository {
         <<interface>>
         +GetAll()
@@ -172,7 +168,6 @@ classDiagram
         +Upsert(LessonProgress progress)
     }
 
-    %% Доменные модели
     class Course {
         +int Id
         +string Title
@@ -226,7 +221,6 @@ classDiagram
         +DateTime CreatedAt
     }
 
-    %% DTO
     class CourseDTO {
         +int Id
         +string Title
@@ -304,7 +298,6 @@ classDiagram
         +int LessonsTotal
     }
 
-    %% База данных
     class CourseDbContext {
         <<EF Core DbContext>>
         +DbSet Course Courses
@@ -324,7 +317,6 @@ classDiagram
         +Down(MigrationBuilder migrationBuilder)
     }
 
-    %% Исключения
     class ValidationException {
         <<exception>>
         +List string Errors
@@ -342,7 +334,6 @@ classDiagram
         +InvokeAsync(HttpContext context, RequestDelegate next)
     }
 
-    %% Связи
     Program --> CourseEndpoints : registers
     Program --> AuthEndpoints : registers
     Program --> ProgressEndpoints : registers
